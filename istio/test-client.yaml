@@ -3,31 +3,31 @@ kind: Service
 metadata:
   # original docker-compose link: "database:postgresql.servicecomb.io"
   # Since kubernetes doesn't allow a namespace with dot like "servicecomb.io", make sure the Pod and Service are under the default namespace to be accessible
-  name: postgresql-client
+  name: test-client
   labels:
-    app: test-database
+    app: test-client
 spec:
   ports:
   - port: 8080
     name: http
   selector:
-    app: test-database-client
+    app: test-client
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  name: test-database-client
+  name: test-client
 spec:
   replicas: 1
   strategy: {}
   template:
     metadata:
       annotations:
-        sidecar.istio.io/status: '{"version":"3710def1fd6b417282ccad9d233d1d103bf78de57c31d10d2d7f3555934a4629","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}'
+        sidecar.istio.io/status: '{"version":"15bbcd92b59e99a83360c48bd7af9e84ffd5b961b914e8febcee0e38d08b773e","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}'
       creationTimestamp: null
       labels:
-        app: test-database-client
+        app: test-client
         version: v1
     spec:
       containers:
@@ -36,7 +36,7 @@ spec:
         - lance
         - lancepwd
         - testdb
-        image: postgresql-test-client
+        image: test-client
         imagePullPolicy: IfNotPresent
         name: test-client
         ports:
@@ -50,13 +50,13 @@ spec:
         - --binaryPath
         - /usr/local/bin/envoy
         - --serviceCluster
-        - test-database-client
+        - test-client
         - --drainDuration
         - 45s
         - --parentShutdownDuration
         - 1m0s
         - --discoveryAddress
-        - istio-pilot.istio-system:15003
+        - istio-pilot.istio-system:8080
         - --discoveryRefreshDelay
         - 1s
         - --zipkinAddress
@@ -69,6 +69,8 @@ spec:
         - "15000"
         - --controlPlaneAuthPolicy
         - NONE
+        - --proxyLogLevel
+        - debug
         env:
         - name: POD_NAME
           valueFrom:
@@ -82,7 +84,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        image: docker.io/istio/proxy_debug:0.6.0
+        image: docker.io/istio/proxy_debug:0.7.1
         imagePullPolicy: IfNotPresent
         name: istio-proxy
         resources: {}
@@ -102,7 +104,7 @@ spec:
         - "15001"
         - -u
         - "1337"
-        image: docker.io/istio/proxy_init:0.6.0
+        image: docker.io/istio/proxy_init:0.7.1
         imagePullPolicy: IfNotPresent
         name: istio-init
         resources: {}

@@ -1,41 +1,43 @@
 apiVersion: v1
 kind: Service
 metadata:
-  # original docker-compose link: "database:postgresql.servicecomb.io"
+  # original docker-compose link: "database:mysql.servicecomb.io"
   # Since kubernetes doesn't allow a namespace with dot like "servicecomb.io", make sure the Pod and Service are under the default namespace to be accessible
-  name: postgresql-test
+  name: mysql-test
   labels:
-    app: test-postgresql
+    app: test-mysql
 spec:
   ports:
-  - port: 5432
+  - port: 3306
     name: http
   selector:
-    app: test-postgresql
+    app: test-mysql
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: test-postgresql
+  name: test-mysql
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: test-postgresql
+        app: test-mysql
         version: v1
     spec:
       containers:
-      - name: test-postgresql
-        image: postgres
+      - name: test-mysql
+        image: mysql
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 5432
+        - containerPort: 3306
         env:
-        - name: POSTGRES_DB
+        - name: MYSQL_DATABASE
           value: testdb
-        - name: POSTGRES_USER
+        - name: MYSQL_USER
           value: lance
-        - name: POSTGRES_PASSWORD
+        - name: MYSQL_PASSWORD
           value: lancepwd
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
 ---

@@ -3,31 +3,31 @@ kind: Service
 metadata:
   # original docker-compose link: "database:postgresql.servicecomb.io"
   # Since kubernetes doesn't allow a namespace with dot like "servicecomb.io", make sure the Pod and Service are under the default namespace to be accessible
-  name: postgresql-client
+  name: test-client
   labels:
-    app: test-database
+    app: test-client
 spec:
   ports:
   - port: 8080
     name: http
   selector:
-    app: test-database-client
+    app: test-client
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: test-database-client
+  name: test-client
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: test-database-client
+        app: test-client
         version: v1
     spec:
       containers:
       - name: test-client
-        image: postgresql-test-client
+        image: test-client
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080

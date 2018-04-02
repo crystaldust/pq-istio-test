@@ -1,3 +1,3 @@
 FROM base/archlinux
-ADD ./postgresql-test /usr/local/bin/
-ENTRYPOINT ["/usr/local/bin/postgresql-test"]
+ADD ./test-client /usr/local/bin/
+ENTRYPOINT ["/usr/local/bin/test-client"]
